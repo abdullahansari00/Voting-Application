@@ -1,0 +1,120 @@
+{% extends 'front/master.html' %}
+{% load static %}
+
+{% block title %}
+  <title>Voting Application | All Polls</title>
+{% endblock %}
+
+{% block sidebar %}
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'all_polls' %}">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>All Polls</span></a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'my_polls' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>My Polls</span></a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'create_poll' %}">
+          <i class="fas fa-fw fa-wrench"></i>
+          <span>Create Polls</span></a>
+      </li>
+
+{% endblock %}
+
+{% block main %}
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">All Polls</h1>
+          </div>
+          <!-- Content Row -->
+          <div class="row">
+
+            <!-- Content Column -->
+            <div class="col-lg-12 mb-4">
+
+              <!-- Project Card Example -->
+              {% for poll in polls %}
+
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">{{poll.0.0}}</h6>
+                </div>
+                <div class="card-body">
+
+                  {% for option in poll.1 %}
+                  <h4 class="small font-weight-bold">
+                      {{option.0}}
+                    <span class="float-right">
+                      {{option.1}}
+
+                      {% if poll.0.2 != 'complete' %}
+                        {% if poll.0.3 != 'voted' %}
+                        <a href="{% url 'vote' username=poll.0.1 question=poll.0.0 option=option.0 %}" class="btn btn-success btn-circle btn-sm">
+                          <i class="fas fa-check"></i>
+                        </a>
+                        {% endif %}
+                      {% endif %}
+
+                    </span>
+                  </h4>
+                  <div class="progress mb-4">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: {{option.2}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  {% endfor %}
+
+                  {% if poll.0.2 == 'complete' %}
+                    <h5>Voting is Ended</h5>
+                  {% endif %}
+
+                  {% if poll.0.3 == 'voted' %}
+                    <h5>You have already voted</h5>
+                  {% endif %}
+
+                  <hr class="sidebar-divider d-none d-md-block">
+                  <h6>Question posted by {{poll.0.1}}</h6>
+                </div>
+              </div>
+
+              {% endfor %}
+
+              <div class="pagination">
+                  <span class="step-links">
+                      {% if polls.has_previous %}
+                          <a href="?page=1">&laquo; first</a>
+                          <a href="?page={{ polls.previous_page_number }}">previous</a>
+                      {% endif %}
+
+                      <span class="current">
+                          Page {{ polls.number }} of {{ polls.paginator.num_pages }}.
+                      </span>
+
+                      {% if polls.has_next %}
+                          <a href="?page={{ polls.next_page_number }}">next</a>
+                          <a href="?page={{ polls.paginator.num_pages }}">last &raquo;</a>
+                      {% endif %}
+                  </span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+{% endblock %}

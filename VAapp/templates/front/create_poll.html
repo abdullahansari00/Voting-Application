@@ -1,0 +1,95 @@
+{% extends 'front/master.html' %}
+{% load static %}
+
+{% block title %}
+  <title>Voting Application | Create Poll</title>
+{% endblock %}
+
+{% block sidebar %}
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'all_polls' %}">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>All Polls</span></a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'my_polls' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>My Polls</span></a>
+      </li>
+
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'create_poll' %}">
+          <i class="fas fa-fw fa-wrench"></i>
+          <span>Create Polls</span></a>
+      </li>
+
+{% endblock %}
+
+{% block main %}
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Create Polls</h1>
+          </div>
+          <!-- Content Row -->
+          <div class="row">
+
+            <!-- Content Column -->
+            <div class="col-lg-8 mb-4">
+
+              <!-- Project Card Example -->
+              <div class="card shadow mb-4">
+              <form class="d-sm-inline-block m-md-3" action="{% url 'create_poll' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+                <div class="input-group">
+                  <input type="text" class="form-control bg-light" placeholder="Question" size="100%" name="question">
+                </div>
+
+                <hr class="sidebar-divider">
+
+                <div class="input-group">
+                  <input type="text" class="form-control bg-light" placeholder="Option 1" size="100%" name="option1">
+                </div>
+
+                <div class="input-group">
+                  <input type="text" class="form-control bg-light" placeholder="Option 2" size="100%" name="option2">
+                </div>
+
+                <div class="input-group">
+                  <input type="text" class="form-control bg-light" placeholder="Option 3" size="100%" name="option3">
+                </div>
+
+                <div class="input-group">
+                  <input type="text" class="form-control bg-light" placeholder="Option 4" size="100%" name="option4">
+                </div>
+
+                <div class="input-group">
+                  <input type="text" class="form-control bg-light" placeholder="Option 5" size="100%" name="option5">
+                </div>
+
+                <hr class="sidebar-divider">
+
+                <div class="input-group">
+                  <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+              </form>   
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+
+{% endblock %}
