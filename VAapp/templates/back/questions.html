@@ -10,7 +10,7 @@
 
       {% if permission == 1 %}
 
-      <li class="nav-item">
+      <li class="nav-item active">
         <a class="nav-link" href="{% url 'admin_panel' %}">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Admin Panel</span></a>
@@ -20,7 +20,7 @@
 
       {% endif %}
 
-      <li class="nav-item active">
+      <li class="nav-item">
         <a class="nav-link" href="{% url 'all_polls' %}">
           <i class="fas fa-fw fa-chart-area"></i>
           <span>All Polls</span></a>
@@ -46,7 +46,7 @@
 
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">All Polls</h1>
+            <h1 class="h3 mb-0 text-gray-800">{{name.capitalize}}'s Polls</h1>
           </div>
           <!-- Content Row -->
           <div class="row">
@@ -69,13 +69,6 @@
                     <span class="float-right">
                       {{option.1}}
 
-                      {% if poll.0.2 != 'complete' %}
-                        {% if poll.0.3 != 'voted' %}
-                        <a href="{% url 'vote' username=poll.0.1 question=poll.0.0 option=option.0 %}" class="btn btn-success btn-circle btn-sm">
-                          <i class="fas fa-check"></i>
-                        </a>
-                        {% endif %}
-                      {% endif %}
 
                     </span>
                   </h4>

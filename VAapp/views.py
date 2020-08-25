@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission, Group
 from django.core.paginator import Paginator
 from django.shortcuts import render
+from django.db.models import Sum
 from .models import Question, Vote
 
 # Create your views here.
@@ -67,56 +68,46 @@ def reset_password(request):
 
 	return render(request, 'front/reset_password.html')
 
-def all_polls(request):
+
+def admin_panel(request):
 	if not request.user.is_authenticated:
 		return redirect('enter')
 
-	username = request.user.username
-	questions = Question.objects.all().order_by('-pk')
-	polls = [[[questions[0].question, questions[0].username],[]]]
-	count = 0
-	
-	for question in questions:
-		if polls[count][0][0] == question.question:
-			polls[count][1].append([question.option, question.count])
-		else:
-			count += 1
-			polls.append([[question.question, question.username],[]])
-			polls[count][1].append([question.option, question.count])
+	permission = 0
 
-	for poll in polls:
-		sum = 0
-		for count in poll[1]:
-			sum = sum + count[1]
+	for x in request.user.groups.all():
+		if x.name == "Can access admin panel" : permission = 1
 
-		if sum >= 12:
-			poll[0].append('complete')
-		else:
-			poll[0].append('remain')
+	if permission == 0:
+		return HttpResponse('You do not have permission to access this page!')
 
-		if Vote.objects.filter(voter=username, question=poll[0][0]):
-			poll[0].append('voted')
-		else:
-			poll[0].append('not')
+	else:
 
-		for count in poll[1]:
-			try:
-				count.append((100*count[1])/sum)
-			except:
-				count.append(0)
+		username = request.user.username
+		info = []
 
-	paginator = Paginator(polls, 5)
-	page_number = request.GET.get('page')
-	polls = paginator.get_page(page_number)
-				
-	return render(request, 'front/all_polls.html', {'username':username, 'polls':polls})
+		users = User.objects.all()
+		for user in users:
+			question = Question.objects.filter(username=user)
+			no_questions = len(question.values('question').distinct())
+			no_votes_been_casted = (question.aggregate(Sum('count')))['count__sum']
+			vote = Vote.objects.filter(voter=user)
+			no_votes_casted = len(vote)
 
-def my_polls(request):
+			info.append([user, no_questions, no_votes_been_casted, no_votes_casted])
+
+		return render(request, 'back/admin_panel.html', {'username':username, 'info':info, 'permission':permission})
+
+def questions(request, username):
 	if not request.user.is_authenticated:
 		return redirect('enter')
 
-	username = request.user.username
-	questions = Question.objects.filter(username=username)
+	permission = 0
+
+	for x in request.user.groups.all():
+		if x.name == "Can access admin panel" : permission = 1
+
+	questions = Question.objects.filter(username=username).order_by('-pk')
 	if questions:
 		polls = [[[questions[0].question, questions[0].username],[]]]
 		count = 0
@@ -156,11 +147,121 @@ def my_polls(request):
 	page_number = request.GET.get('page')
 	polls = paginator.get_page(page_number)
 
-	return render(request, 'front/my_polls.html', {'username':username, 'polls':polls})
+	name = username
+	username = request.user.username
+
+	return render(request, 'back/questions.html', {'username':username, 'polls':polls, 'permission':permission, 'name':name})
+
+
+def all_polls(request):
+	if not request.user.is_authenticated:
+		return redirect('enter')
+
+	permission = 0
+
+	for x in request.user.groups.all():
+		if x.name == "Can access admin panel" : permission = 1
+
+	username = request.user.username
+	questions = Question.objects.all().order_by('-pk')
+	polls = [[[questions[0].question, questions[0].username],[]]]
+	count = 0
+	
+	for question in questions:
+		if polls[count][0][0] == question.question:
+			polls[count][1].append([question.option, question.count])
+		else:
+			count += 1
+			polls.append([[question.question, question.username],[]])
+			polls[count][1].append([question.option, question.count])
+
+	for poll in polls:
+		sum = 0
+		for count in poll[1]:
+			sum = sum + count[1]
+
+		if sum >= 12:
+			poll[0].append('complete')
+		else:
+			poll[0].append('remain')
+
+		if Vote.objects.filter(voter=username, question=poll[0][0]):
+			poll[0].append('voted')
+		else:
+			poll[0].append('not')
+
+		for count in poll[1]:
+			try:
+				count.append((100*count[1])/sum)
+			except:
+				count.append(0)
+
+	paginator = Paginator(polls, 5)
+	page_number = request.GET.get('page')
+	polls = paginator.get_page(page_number)
+				
+	return render(request, 'front/all_polls.html', {'username':username, 'polls':polls, 'permission':permission})
+
+def my_polls(request):
+	if not request.user.is_authenticated:
+		return redirect('enter')
+
+	permission = 0
+
+	for x in request.user.groups.all():
+		if x.name == "Can access admin panel" : permission = 1
+
+	username = request.user.username
+	questions = Question.objects.filter(username=username).order_by('-pk')
+	if questions:
+		polls = [[[questions[0].question, questions[0].username],[]]]
+		count = 0
+		
+		for question in questions:
+			if polls[count][0][0] == question.question:
+				polls[count][1].append([question.option, question.count])
+			else:
+				count += 1
+				polls.append([[question.question, question.username],[]])
+				polls[count][1].append([question.option, question.count])
+
+		for poll in polls:
+			sum = 0
+			for count in poll[1]:
+				sum = sum + count[1]
+
+			if sum >= 12:
+				poll[0].append('complete')
+			else:
+				poll[0].append('remain')
+
+			if Vote.objects.filter(voter=username, question=poll[0][0]):
+				poll[0].append('voted')
+			else:
+				poll[0].append('not')
+
+			for count in poll[1]:
+				try:
+					count.append((100*count[1])/sum)
+				except:
+					count.append(0)
+	else:
+		polls=[]
+
+	paginator = Paginator(polls, 5)
+	page_number = request.GET.get('page')
+	polls = paginator.get_page(page_number)
+
+	return render(request, 'front/my_polls.html', {'username':username, 'polls':polls, 'permission':permission})
 
 def create_poll(request):
 	if not request.user.is_authenticated:
 		return redirect('enter')
+
+	permission = 0
+
+	for x in request.user.groups.all():
+		if x.name == "Can access admin panel" : permission = 1
 
 	username = request.user.username
 
@@ -190,7 +291,7 @@ def create_poll(request):
 			polls.save()
 
 		return redirect('my_polls')
-	return render(request, 'front/create_poll.html', {'username':username})
+	return render(request, 'front/create_poll.html', {'username':username, 'permission':permission})
 
 def delete_poll(request, username, question):
 	question = Question.objects.filter(username=username, question=question)

@@ -7,6 +7,21 @@
 
 {% block sidebar %}
       <!-- Nav Item - Dashboard -->
+
+      {% if permission == 1 %}
+
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'admin_panel' %}">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Admin Panel</span></a>
+      </li>
+
+      <hr class="sidebar-divider d-none d-md-block">
+
+      {% endif %}
+
+      
+      <!-- Nav Item - Dashboard -->
       <li class="nav-item">
         <a class="nav-link" href="{% url 'all_polls' %}">
           <i class="fas fa-fw fa-chart-area"></i>
