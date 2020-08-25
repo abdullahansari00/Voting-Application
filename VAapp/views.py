@@ -164,38 +164,43 @@ def all_polls(request):
 
 	username = request.user.username
 	questions = Question.objects.all().order_by('-pk')
-	polls = [[[questions[0].question, questions[0].username],[]]]
-	count = 0
-	
-	for question in questions:
-		if polls[count][0][0] == question.question:
-			polls[count][1].append([question.option, question.count])
-		else:
-			count += 1
-			polls.append([[question.question, question.username],[]])
-			polls[count][1].append([question.option, question.count])
 
-	for poll in polls:
-		sum = 0
-		for count in poll[1]:
-			sum = sum + count[1]
+	if questions:
+		print("haha", len(questions))
+		polls = [[[questions[0].question, questions[0].username],[]]]
+		count = 0
+		
+		for question in questions:
+			if polls[count][0][0] == question.question:
+				polls[count][1].append([question.option, question.count])
+			else:
+				count += 1
+				polls.append([[question.question, question.username],[]])
+				polls[count][1].append([question.option, question.count])
 
-		if sum >= 12:
-			poll[0].append('complete')
-		else:
-			poll[0].append('remain')
+		for poll in polls:
+			sum = 0
+			for count in poll[1]:
+				sum = sum + count[1]
 
-		if Vote.objects.filter(voter=username, question=poll[0][0]):
-			poll[0].append('voted')
-		else:
-			poll[0].append('not')
+			if sum >= 12:
+				poll[0].append('complete')
+			else:
+				poll[0].append('remain')
 
-		for count in poll[1]:
-			try:
-				count.append((100*count[1])/sum)
-			except:
-				count.append(0)
+			if Vote.objects.filter(voter=username, question=poll[0][0]):
+				poll[0].append('voted')
+			else:
+				poll[0].append('not')
 
+			for count in poll[1]:
+				try:
+					count.append((100*count[1])/sum)
+				except:
+					count.append(0)
+	else:
+		polls = []
+		
 	paginator = Paginator(polls, 5)
 	page_number = request.GET.get('page')
 	polls = paginator.get_page(page_number)
